@@ -4,7 +4,7 @@ Servidor de cálculo de Índice de Masa Corporal (IMC) desarrollado en **Node.js
 
 ---
 
-## 🏛️ Arquitectura del Proyecto
+## Arquitectura del Proyecto
 
 El servidor desacopla totalmente las reglas de negocio y los casos de uso de cualquier tecnología de transporte o infraestructura:
 
@@ -42,7 +42,7 @@ imc-udp-server-node-hexagonal/
 
 ---
 
-## 📡 Protocolo de Comunicación UDP/IP
+## Protocolo de Comunicación UDP/IP
 
 Los mensajes viajan sobre datagramas UDP codificados en cadenas JSON (UTF-8).
 
@@ -84,7 +84,7 @@ Los mensajes viajan sobre datagramas UDP codificados en cadenas JSON (UTF-8).
 
 ---
 
-## 🚀 Instalación y Ejecución
+## Instalación y Ejecución
 
 ### Prerrequisitos
 - Node.js >= 20
