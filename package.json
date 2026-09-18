@@ -1,0 +1,23 @@
+{
+  "name": "imc-udp-server-node-hexagonal",
+  "version": "1.0.0",
+  "description": "Servidor UDP para cálculo de IMC aplicando Arquitectura Hexagonal en Node.js y TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["udp", "imc", "hexagonal-architecture", "typescript", "clean-architecture"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
