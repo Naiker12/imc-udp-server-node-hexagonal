@@ -1,19 +1,9 @@
-import { ImcCalculatorService } from './domain/service/ImcCalculatorService.js';
-import { CalcularImcUseCaseImpl } from './application/usecases/CalcularImcUseCaseImpl.js';
-import { ConsoleLoggerAdapter } from './infrastructure/adapters/logger/ConsoleLoggerAdapter.js';
-import { UdpServerAdapter } from './infrastructure/adapters/udp/UdpServerAdapter.js';
+import { createServer } from './bootstrap/createServer.js';
 
 const PORT = Number(process.env.UDP_PORT) || 9050;
 const HOST = process.env.UDP_HOST || '0.0.0.0';
 
-const logger = new ConsoleLoggerAdapter();
-const imcService = new ImcCalculatorService();
-const calcularImcUseCase = new CalcularImcUseCaseImpl(imcService, logger);
-
-const serverAdapter = new UdpServerAdapter(calcularImcUseCase, logger, {
-  port: PORT,
-  host: HOST
-});
+const { server: serverAdapter, logger } = createServer({ port: PORT, host: HOST });
 
 async function bootstrap() {
   try {

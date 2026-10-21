@@ -1,3 +1,4 @@
+import { decodeImcRequest } from './ImcRequestJson.js';
 import dgram, { Socket, RemoteInfo } from 'node:dgram';
 import { CalcularImcUseCase } from '../../../application/ports/in/CalcularImcUseCase.js';
 import { LoggerPort } from '../../../application/ports/out/LoggerPort.js';
@@ -31,10 +32,15 @@ export class UdpServerAdapter {
 
         this.socket.on('error', (err) => {
           this.logger.error(`Error en el socket UDP del servidor: ${err.message}`, err);
+          reject(err);
         });
 
         this.socket.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
-          this.handleIncomingMessage(msg, rinfo);
+          void this.handleIncomingMessage(msg, rinfo).catch((error: unknown) => {
+            this.logger.error('Error procesando datagrama UDP.', error);
+            this.sendResponse({ status: 'ERROR', error: { codigo: 'ERROR_INTERNO',
+              mensaje: 'No se pudo procesar la solicitud.' }, timestamp: new Date().toISOString() }, rinfo);
+          });
         });
 
         this.socket.on('listening', () => {
@@ -57,12 +63,10 @@ export class UdpServerAdapter {
     const rawContent = msg.toString('utf-8');
     this.logger.info(`Datagrama recibido de [${rinfo.address}:${rinfo.port}] (${msg.length} bytes)`);
 
-    let parsedPayload: any;
-    let requestId: string | undefined;
+    let parsedPayload: ReturnType<typeof decodeImcRequest>;
 
     try {
-      parsedPayload = JSON.parse(rawContent);
-      requestId = parsedPayload?.id;
+      parsedPayload = decodeImcRequest(rawContent);
     } catch {
       this.logger.warn(`Mensaje no es JSON válido de [${rinfo.address}:${rinfo.port}]: "${rawContent}"`);
       const errorResponse = {
@@ -80,7 +84,7 @@ export class UdpServerAdapter {
 
     // Ejecutamos el caso de uso mediante el puerto de entrada
     const resultado = await this.calcularImcUseCase.ejecutar({
-      id: requestId,
+      id: parsedPayload.id,
       peso: parsedPayload.peso,
       altura: parsedPayload.altura
     });
@@ -115,7 +119,9 @@ export class UdpServerAdapter {
   async stop(): Promise<void> {
     return new Promise((resolve) => {
       if (this.socket) {
-        this.socket.close(() => {
+        const socket = this.socket;
+        this.socket = null;
+        socket.close(() => {
           this.logger.info('Servidor UDP detenido correctamente.');
           resolve();
         });
